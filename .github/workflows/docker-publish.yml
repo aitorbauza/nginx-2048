@@ -1,0 +1,31 @@
+name: Publicar imatge a Docker Hub
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar el repositori
+        uses: actions/checkout@v4
+
+      - name: Iniciar sessió a Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Construir la imatge Docker
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nginx-2048:latest .
+
+      - name: Etiquetar la imatge amb versió 1.0
+        run: docker tag ${{ secrets.DOCKERHUB_USERNAME }}/nginx-2048:latest ${{ secrets.DOCKERHUB_USERNAME }}/nginx-2048:1.0
+
+      - name: Publicar la imatge a Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx-2048:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nginx-2048:1.0
